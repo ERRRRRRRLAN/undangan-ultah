@@ -405,4 +405,56 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (musikBtn) musikBtn.addEventListener('click', alihkanMusik);
 
+// animasi gulir: elemen "berubah" mengikuti posisi scroll (set var --p)
+  (function () {
+    var kurangGerak = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (kurangGerak) return;
+
+    var elems = [].slice.call(document.querySelectorAll('.reveal'));
+    if (!elems.length) return;
+
+    document.documentElement.classList.add('scroll-anim');
+
+    var data = [];
+    var vh = window.innerHeight;
+
+    function ukur() {
+      vh = window.innerHeight;
+      data = elems.map(function (el) {
+        var kotak = el.getBoundingClientRect();
+        return {
+          el: el,
+          top: kotak.top + window.scrollY,
+          n: el.parentElement ? [].indexOf.call(el.parentElement.children, el) : 0,
+          p: -1
+        };
+      });
+    }
+
+    function jalan() {
+      var sc = window.scrollY;
+      var selesai = sc + vh * 0.40;
+      for (var i = 0; i < data.length; i++) {
+        var d = data[i];
+        var mulai = sc + vh * 0.94 + Math.min(d.n, 6) * (vh * 0.018);
+        var p = (mulai - d.top) / (mulai - selesai);
+        if (p < 0) p = 0; else if (p > 1) p = 1;
+        if (d.p !== p) { d.p = p; d.el.style.setProperty('--p', p.toFixed(3)); }
+      }
+    }
+
+    var tunggu = false;
+    function minta() {
+      if (tunggu) return;
+      tunggu = true;
+      requestAnimationFrame(function () { tunggu = false; jalan(); });
+    }
+
+    window.addEventListener('scroll', minta, { passive: true });
+    window.addEventListener('resize', function () { ukur(); minta(); });
+    window.addEventListener('load', function () { ukur(); minta(); });
+    ukur();
+    jalan();
+  })();
+
 });
