@@ -199,17 +199,26 @@ document.addEventListener('DOMContentLoaded', function () {
   var heroInner = byId('hero-inner');
   var hero = document.querySelector('.hero');
 
+  var maxScroll = 0;
+  var heroTinggi = 1;
+
+  function ukurUlang() {
+    maxScroll = document.documentElement.scrollHeight - innerHeight;
+    heroTinggi = hero.offsetHeight || 1;
+  }
+
   function updateOnScroll() {
-    var maxScroll = document.documentElement.scrollHeight - innerHeight;
     progressBar.style.width = (maxScroll > 0 ? (scrollY / maxScroll) * 100 : 0) + '%';
 
-    if (scrollY < hero.offsetHeight) {
+    if (scrollY < heroTinggi) {
       heroInner.style.setProperty('--hero-shift', scrollY * 0.22 + 'px');
-      heroInner.style.opacity = Math.max(0, 1 - scrollY / (hero.offsetHeight * 0.9));
+      heroInner.style.opacity = Math.max(0, 1 - scrollY / (heroTinggi * 0.9));
     }
   }
 
   addEventListener('scroll', function () { requestAnimationFrame(updateOnScroll); }, { passive: true });
+  addEventListener('resize', ukurUlang);
+  ukurUlang();
   updateOnScroll();
 
 // rsvp
@@ -404,8 +413,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var posisi = window.scrollY;
     var tujuan = window.scrollY;
-    var diatur = null;
-    var daya = 0.095;
+    var diatur = Math.round(window.scrollY);
+    var daya = 0.16;
     var offsetNav = 76;
 
     function batas() { return document.documentElement.scrollHeight - window.innerHeight; }
@@ -448,12 +457,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     (function langkah() {
       if (terkunci()) {
-        posisi = tujuan = window.scrollY;
+        posisi = tujuan = diatur = window.scrollY;
       } else {
         posisi += (tujuan - posisi) * daya;
         if (Math.abs(tujuan - posisi) < 0.4) posisi = tujuan;
         var y = Math.round(posisi);
-        if (Math.round(window.scrollY) !== y) { diatur = y; window.scrollTo(0, y); }
+        if (y !== diatur) { diatur = y; window.scrollTo(0, y); }
       }
       requestAnimationFrame(langkah);
     })();
