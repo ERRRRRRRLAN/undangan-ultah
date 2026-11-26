@@ -7,7 +7,7 @@ var CADANGAN = {
   timeText: '07.00 - 11.55 WIB',
   venue: 'Rumah Erlan, Perumahan Griya Serpong, Kademangan, Setu',
   bank: 'BCA 1234567890 a.n. Erlan Nauval Aqilah',
-  mapQuery: 'Perumahan Griya Serpong, Kademangan, Setu'
+  mapQuery: 'Gedung DPR Jakarta'
 };
 
 var CONFIG = (window.UNDANGAN && window.UNDANGAN.acara)
@@ -88,6 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
     opened = true;
     document.body.classList.remove('scroll-lock');
     document.body.classList.add('cover-opened');
+    putarMusik();
 
     if (instant) {
       cover.style.display = 'none';
@@ -337,5 +338,61 @@ document.addEventListener('DOMContentLoaded', function () {
       open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
     });
   }
+
+// simpan ke kalender
+  function stempelKalender(date) {
+    var dua = function (n) { return String(n).padStart(2, '0'); };
+    return date.getUTCFullYear() + dua(date.getUTCMonth() + 1) + dua(date.getUTCDate()) +
+      'T' + dua(date.getUTCHours()) + dua(date.getUTCMinutes()) + '00Z';
+  }
+
+  var mulaiAcara = new Date(CONFIG.startIso);
+  if (!isNaN(mulaiAcara.getTime())) {
+    var selesaiAcara = new Date(mulaiAcara.getTime() + 3 * 3600000);
+    var tautanKalender = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+      '&text=' + encodeURIComponent('Ulang Tahun ' + CONFIG.name + ' ke-' + CONFIG.age) +
+      '&dates=' + stempelKalender(mulaiAcara) + '/' + stempelKalender(selesaiAcara) +
+      '&location=' + encodeURIComponent(CONFIG.venue) +
+      '&details=' + encodeURIComponent(CONFIG.dateText + ', ' + CONFIG.timeText + ' - ' + CONFIG.venue);
+    setAttr('add-calendar', 'href', tautanKalender);
+  }
+
+// lokasi & peta
+  var queryPeta = CONFIG.mapQuery || CONFIG.venue;
+  if (byId('map-frame')) {
+    byId('map-frame').src = 'https://www.google.com/maps?q=' + encodeURIComponent(queryPeta) + '&output=embed';
+    setAttr('map-link', 'href', 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(queryPeta));
+    setText('venue-text-maps', queryPeta);
+  }
+
+// musik latar
+  var musik = byId('bg-music');
+  var musikBtn = byId('music-toggle');
+
+  function setMusikAktif(aktif) {
+    if (!musikBtn) return;
+    musikBtn.classList.toggle('is-playing', !!aktif);
+    musikBtn.setAttribute('aria-pressed', aktif ? 'true' : 'false');
+    musikBtn.setAttribute('aria-label', aktif ? 'Jeda musik' : 'Putar musik');
+  }
+
+  function putarMusik() {
+    if (!musik) return;
+    var janji = musik.play();
+    if (janji && janji.then) {
+      janji.then(function () { setMusikAktif(true); })
+           .catch(function () { setMusikAktif(false); });
+    } else {
+      setMusikAktif(true);
+    }
+  }
+
+  function alihkanMusik() {
+    if (!musik) return;
+    if (musik.paused) putarMusik();
+    else { musik.pause(); setMusikAktif(false); }
+  }
+
+  if (musikBtn) musikBtn.addEventListener('click', alihkanMusik);
 
 });
