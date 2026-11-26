@@ -1110,6 +1110,33 @@ body::after {
   background-position: center;
 }
 
+/* ================= KETERBACAAN (perbesar ukuran teks) ================= */
+:root {
+  --eyebrow: 0.8rem;
+  --bs-body-font-size: 18px;
+}
+
+html, body { overflow-x: hidden; }
+
+.lead { font-size: 1.16rem; }
+.note { font-size: 0.95rem; line-height: 1.8; }
+.checklist li, .inline-list { font-size: 1.04rem; }
+.event-info dt { font-size: 0.8rem; }
+.event-info dd { font-size: 1.06rem; }
+.countdown .num { font-size: clamp(1.6rem, 4.6vw, 2.35rem); }
+.countdown .unit { font-size: 0.74rem; }
+.timeline .when { font-size: 1.05rem; }
+.timeline .what strong { font-size: 1.16rem; }
+.timeline .what span { font-size: 0.98rem; }
+.stat-value { font-size: 1.9rem; }
+.wish-name { font-size: 1.12rem; }
+.wish-text { font-size: 1.02rem; }
+.wish-time { font-size: 0.86rem; }
+.brand { font-size: 0.82rem; }
+.link-light { font-size: 0.86rem; }
+.site-footer .note { font-size: 0.95rem; }
+.swatches { font-size: 1.02rem; }
+
 /* layar kecil */
 @media (max-width: 1024px) {
   .nav-cta { display: none; }
@@ -1175,11 +1202,27 @@ body::after {
 
   .checklist li { padding-block: 16px; }
 
+  /* agenda dirapikan untuk layar HP */
+  .timeline { max-width: none; }
+
   .timeline li {
-    grid-template-columns: 62px 1fr;
-    gap: 20px;
-    padding: 20px 0;
+    grid-template-columns: 66px 1fr;
+    gap: 16px;
+    padding: 22px 0;
   }
+
+  .timeline .when { font-size: 1.02rem; }
+  .timeline .what strong { font-size: 1.12rem; }
+  .timeline .what span { font-size: 0.96rem; }
+
+  /* di HP animasi cukup dari bawah, biar nggak geser ke samping */
+  .reveal.from-left:not(.is-visible),
+  .reveal.from-right:not(.is-visible),
+  .timeline li.reveal:not(.is-visible),
+  .timeline li:nth-child(even).reveal:not(.is-visible),
+  .checklist li.reveal:not(.is-visible) { transform: translateY(26px); }
+
+  .reveal.shot:not(.is-visible) { transform: translateY(24px) scale(0.95); }
 
   .side { padding-top: 32px; }
 
