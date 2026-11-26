@@ -5,7 +5,7 @@ var CADANGAN = {
   dateText: 'Senin, 21 Juni 2027',
   startIso: '2027-06-21T07:00:00+07:00',
   timeText: '07.00 - 11.55 WIB',
-  venue: 'Rumah Erlan, Perumahan Griya Serpong, Kademangan, Setu',
+  venue: 'Gedung DPR Jakarta',
   bank: 'BCA 1234567890 a.n. Erlan Nauval Aqilah',
   mapQuery: 'Gedung DPR Jakarta'
 };
