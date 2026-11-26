@@ -887,6 +887,124 @@ body.cover-opened .music-toggle {
   50%      { transform: scaleY(1); }
 }
 
+/* ================= AKSEN CORAK & GARIS (gaya undangan) ================= */
+
+/* pola belah-ketupat tipis di atas kertas */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='46' height='46'><path d='M23 3 L43 23 L23 43 L3 23 Z' fill='none' stroke='%23B9A98F' stroke-width='0.6'/><circle cx='23' cy='23' r='1.1' fill='%23B9A98F'/></svg>");
+  background-size: 46px 46px;
+}
+
+/* garis emas + belah ketupat di bawah judul tiap section (tumbuh saat muncul) */
+.section-head::after {
+  content: "";
+  display: block;
+  width: 104px;
+  height: 11px;
+  margin-top: 16px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='104' height='11' viewBox='0 0 104 11'><g fill='none' stroke='%23A9762A' stroke-width='1'><line x1='0' y1='5.5' x2='40' y2='5.5'/><line x1='64' y1='5.5' x2='104' y2='5.5'/></g><path d='M52 1 L56 5.5 L52 10 L48 5.5 Z' fill='%23A9762A'/><circle cx='40' cy='5.5' r='1.6' fill='%23A9762A'/><circle cx='64' cy='5.5' r='1.6' fill='%23A9762A'/></svg>");
+  background-repeat: no-repeat;
+  background-position: left center;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.18s;
+}
+
+.section-head.is-visible::after { transform: scaleX(1); }
+
+/* bingkai sudut emas di sampul (diagonal) */
+.cover-box { position: relative; }
+.cover-box::before,
+.cover-box::after {
+  content: "";
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  pointer-events: none;
+  border: 1px solid rgba(216, 188, 134, 0.75);
+  animation: fade-in 1.4s ease both 0.6s;
+}
+.cover-box::before { top: -22px; left: -22px; border-right: 0; border-bottom: 0; }
+.cover-box::after { bottom: -22px; right: -22px; border-left: 0; border-top: 0; }
+
+/* bingkai sudut emas di hero */
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  pointer-events: none;
+  border: 1px solid rgba(216, 188, 134, 0.5);
+}
+.hero::before { top: 96px; left: 28px; border-right: 0; border-bottom: 0; }
+.hero::after { bottom: 44px; right: 28px; border-left: 0; border-top: 0; }
+
+/* ================= FOKUS PER SECTION (putih & tinggi layar) ================= */
+
+html {
+  scroll-snap-type: y proximity;
+  scroll-padding-top: 76px;
+}
+
+.section:not(.site-footer) {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-block: clamp(104px, 16vh, 180px);
+  scroll-snap-align: start;
+}
+
+.section:not(.site-footer) > .container { width: 100%; }
+
+/* hero juga mengisi satu layar penuh */
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+.hero-inner { width: 100%; }
+
+/* ================= ANIMASI GULIR (lebih hidup) ================= */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(48px) scale(0.985);
+  filter: blur(9px);
+  transition:
+    opacity 1.15s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1.15s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 1.15s ease;
+  transition-delay: var(--delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+.reveal.from-left  { transform: translateX(-58px) scale(0.985); }
+.reveal.from-right { transform: translateX(58px) scale(0.985); }
+
+.reveal.is-visible { opacity: 1; transform: none; filter: blur(0); }
+
+.reveal.shot {
+  opacity: 0;
+  transform: translateY(40px) scale(0.92);
+  filter: blur(7px);
+  transition-duration: 1.2s;
+}
+
+.reveal.shot.is-visible { opacity: 1; transform: none; filter: blur(0); }
+
 /* layar kecil */
 @media (max-width: 1024px) {
   .nav-cta { display: none; }
@@ -982,10 +1100,13 @@ body.cover-opened .music-toggle {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
+  html { scroll-behavior: auto; scroll-snap-type: none; }
   .confetti span, .balloon { animation: none; }
-  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .reveal, .reveal.shot {
+    opacity: 1 !important; transform: none !important;
+    filter: none !important; transition: none !important;
+  }
+  .section-head::after { transform: scaleX(1) !important; transition: none !important; }
   .hero-inner { transform: none !important; }
-  .reveal.shot { transform: none !important; }
   .music-toggle.is-playing .music-toggle-icon i { animation: none; transform: scaleY(0.7); }
 }
