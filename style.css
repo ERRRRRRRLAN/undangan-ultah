@@ -1258,3 +1258,22 @@ html, body { overflow-x: hidden; }
   .hero-inner { transform: none !important; }
   .music-toggle.is-playing .music-toggle-icon i { animation: none; transform: scaleY(0.7); }
 }
+
+/* ================= PADDING SAMPING KONSISTEN ================= */
+:root { --pad-x: 32px; }
+
+.container,
+.topbar,
+.cover,
+.site-footer .container { padding-inline: var(--pad-x); }
+
+/* hero: andalkan padding container saja (biar sejajar section lain) */
+.hero { padding-left: 0; padding-right: 0; }
+
+.drawer { padding-left: var(--pad-x); padding-right: var(--pad-x); }
+
+@media (max-width: 780px) {
+  :root { --pad-x: 22px; }
+  .cover-box::before { top: -16px; left: -16px; }
+  .cover-box::after { bottom: -16px; right: -16px; }
+}
