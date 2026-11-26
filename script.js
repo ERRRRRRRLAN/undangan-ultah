@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   revealEls.forEach(function (el) {
     var index = el.parentElement ? [].indexOf.call(el.parentElement.children, el) : 0;
-    el.style.setProperty('--delay', Math.min(480, index * 70) + 'ms');
+    el.style.setProperty('--delay', Math.min(600, index * 85) + 'ms');
     el.classList.add('reveal');
     if (el.matches('.col-lg-7, .col-lg-5')) el.classList.add(index === 0 ? 'from-left' : 'from-right');
   });

@@ -1034,25 +1034,42 @@ body::after {
 
 .reveal {
   opacity: 0;
-  transform: translateY(34px);
+  transform: translateY(44px) scale(0.965);
+  filter: blur(4px);
   transition:
-    opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1.12s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.9s ease;
   transition-delay: var(--delay, 0ms);
 }
 
-.reveal.from-left  { transform: translateX(-46px); }
-.reveal.from-right { transform: translateX(46px); }
+.reveal.from-left  { transform: translateX(-64px) scale(0.97); }
+.reveal.from-right { transform: translateX(64px) scale(0.97); }
 
-.reveal.is-visible { opacity: 1; transform: none; }
+.reveal.is-visible { opacity: 1; transform: none; filter: blur(0); }
 
+/* variasi per elemen supaya kaya */
+.checklist li.reveal { transform: translateX(-30px); }
+.timeline li.reveal { transform: translateX(-38px); }
+.timeline li:nth-child(even).reveal { transform: translateX(38px); }
+.swatches li.reveal { transform: translateY(22px) scale(0.72); }
+.stats > div.reveal { transform: translateY(26px) scale(0.85); }
+.map-wrap.reveal { transform: translateY(32px) scale(0.975); }
+
+/* foto: naik + miring halus, gambarnya zoom saat muncul */
 .reveal.shot {
   opacity: 0;
-  transform: translateY(26px) scale(0.95);
-  transition-duration: 0.95s;
+  transform: translateY(34px) scale(0.92) rotate(-1.2deg);
+  filter: none;
+  transition:
+    opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .reveal.shot.is-visible { opacity: 1; transform: none; }
+
+.reveal.shot img { --shot-zoom: 1.18; }
+.reveal.shot.is-visible img { --shot-zoom: 1; }
 
 /* ================= ORNAMEN TAMBAHAN ================= */
 
