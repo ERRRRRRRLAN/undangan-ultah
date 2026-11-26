@@ -109,14 +109,15 @@ document.addEventListener('DOMContentLoaded', function () {
   var drawer = byId('drawer');
 
   function showMenu(open) {
-    drawer.hidden = !open;
+    drawer.classList.toggle('drawer-open', open);
+    drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
     menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
     menuBtn.textContent = open ? 'Tutup' : 'Menu';
     document.body.classList.toggle('menu-open', open);
   }
 
   if (menuBtn && drawer) {
-    menuBtn.addEventListener('click', function () { showMenu(drawer.hidden); });
+    menuBtn.addEventListener('click', function () { showMenu(!drawer.classList.contains('drawer-open')); });
     byId('close-menu').addEventListener('click', function () { showMenu(false); });
     drawer.querySelectorAll('a').forEach(function (link) {
       link.addEventListener('click', function () { showMenu(false); });
@@ -394,5 +395,68 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (musikBtn) musikBtn.addEventListener('click', alihkanMusik);
+
+// scroll halus (lerp) - untuk perangkat ber-mouse saja
+  (function () {
+    var kurangGerak = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var hanyaSentuh = window.matchMedia && window.matchMedia('(hover: none)').matches;
+    if (kurangGerak || hanyaSentuh) return;
+
+    var posisi = window.scrollY;
+    var tujuan = window.scrollY;
+    var diatur = null;
+    var daya = 0.095;
+    var offsetNav = 76;
+
+    function batas() { return document.documentElement.scrollHeight - window.innerHeight; }
+    function kunci(v) { return Math.max(0, Math.min(batas(), v)); }
+    function terkunci() {
+      return document.body.classList.contains('scroll-lock') || document.body.classList.contains('menu-open');
+    }
+
+    window.addEventListener('wheel', function (e) {
+      if (e.ctrlKey || terkunci()) return;
+      var el = e.target;
+      while (el && el.nodeType === 1 && el !== document.documentElement) {
+        var gaya = getComputedStyle(el);
+        if ((gaya.overflowY === 'auto' || gaya.overflowY === 'scroll' || gaya.overflowY === 'overlay') &&
+            el.scrollHeight > el.clientHeight + 1) return;
+        el = el.parentElement;
+      }
+      e.preventDefault();
+      tujuan = kunci(tujuan + e.deltaY);
+    }, { passive: false });
+
+    // klik link dalam halaman -> gulir mulus, bukan lompat
+    document.addEventListener('click', function (e) {
+      var tautan = e.target && e.target.closest ? e.target.closest('a[href^="#"]') : null;
+      if (!tautan || terkunci()) return;
+      var hash = tautan.getAttribute('href');
+      if (!hash || hash.length < 2) return;
+      var elemen = document.querySelector(hash);
+      if (!elemen) return;
+      e.preventDefault();
+      tujuan = kunci(elemen.getBoundingClientRect().top + window.scrollY - offsetNav);
+    });
+
+    window.addEventListener('scroll', function () {
+      if (diatur === null) return;
+      if (Math.abs(window.scrollY - diatur) > 1) { posisi = tujuan = window.scrollY; }
+    }, { passive: true });
+
+    window.addEventListener('resize', function () { tujuan = kunci(tujuan); });
+
+    (function langkah() {
+      if (terkunci()) {
+        posisi = tujuan = window.scrollY;
+      } else {
+        posisi += (tujuan - posisi) * daya;
+        if (Math.abs(tujuan - posisi) < 0.4) posisi = tujuan;
+        var y = Math.round(posisi);
+        if (Math.round(window.scrollY) !== y) { diatur = y; window.scrollTo(0, y); }
+      }
+      requestAnimationFrame(langkah);
+    })();
+  })();
 
 });
