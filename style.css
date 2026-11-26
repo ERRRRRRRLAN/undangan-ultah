@@ -70,7 +70,7 @@
 }
 
 /* dasar halaman */
-html { scroll-behavior: auto; }
+html { scroll-behavior: smooth; }
 
 body { background: var(--paper); color: var(--ink); }
 
