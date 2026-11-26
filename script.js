@@ -210,4 +210,132 @@ document.addEventListener('DOMContentLoaded', function () {
   addEventListener('scroll', function () { requestAnimationFrame(updateOnScroll); }, { passive: true });
   updateOnScroll();
 
+// rsvp
+  var form = byId('rsvp-form');
+
+  function renderList(entries) {
+    var counts = { present: 0, absent: 0, maybe: 0, people: 0 };
+
+    entries.forEach(function (item) {
+      if (item.kehadiran === 'Hadir') {
+        counts.present++;
+        counts.people += parseInt(item.jumlah, 10) || 1;
+      } else if (item.kehadiran === 'Tidak Hadir') {
+        counts.absent++;
+      } else {
+        counts.maybe++;
+      }
+    });
+
+    setText('stat-present', counts.present);
+    setText('stat-absent', counts.absent);
+    setText('stat-maybe', counts.maybe);
+    setText('stat-people', counts.people);
+    setText('confirm-count', '(' + entries.length + ' konfirmasi)');
+
+    if (!entries.length) {
+      byId('confirm-list').innerHTML = '<p class="note">Belum ada konfirmasi. Jadilah yang pertama.</p>';
+      return;
+    }
+
+    byId('confirm-list').innerHTML = entries.map(function (item) {
+      var badge = item.kehadiran === 'Hadir' ? 'badge-present'
+                : (item.kehadiran === 'Tidak Hadir' ? 'badge-absent' : 'badge-maybe');
+      var when = new Date(item.waktu || Date.now()).toLocaleString('id-ID', {
+        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+
+      return '<div class="wish is-visible">' +
+        '<div class="wish-top">' +
+          '<span class="wish-name">' + escapeHtml(item.nama) + '</span>' +
+          '<span class="badge ' + badge + '">' + escapeHtml(item.kehadiran) +
+            (item.jumlah > 1 ? ' ' + escapeHtml(item.jumlah) + ' orang' : '') + '</span>' +
+        '</div>' +
+        (item.pesan ? '<p class="wish-text">' + escapeHtml(item.pesan) + '</p>' : '') +
+        (item.asal ? '<p class="note">' + escapeHtml(item.asal) + '</p>' : '') +
+        '<span class="wish-time">' + when + '</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  function loadConfirmations() {
+    if (!window.DB) {
+      renderList([]);
+      setText('status-line', 'Database belum disiapkan (berkas db.js tidak dimuat).');
+      return Promise.resolve();
+    }
+
+    return DB.daftarKonfirmasi()
+      .then(function (entries) {
+        renderList(entries);
+        setText('status-line', entries.length
+          ? 'Terhubung ke database (' + entries.length + ' konfirmasi).'
+          : 'Terhubung ke database - belum ada konfirmasi.');
+      })
+      .catch(function (err) {
+        renderList([]);
+        setText('status-line', 'Gagal memuat dari database: ' + err.message);
+      });
+  }
+
+  if (form) {
+    if (fullName) byId('field-name').value = fullName;
+    if (guest.from) byId('field-from').value = guest.from;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var payload = {
+        nama: byId('field-name').value.trim(),
+        asal: byId('field-from').value.trim(),
+        kategori: byId('field-group').value,
+        kehadiran: byId('field-attend').value,
+        jumlah: parseInt(byId('field-people').value, 10) || 1,
+        pesan: byId('field-message').value.trim()
+      };
+
+      if (!payload.nama) {
+        byId('field-name').focus();
+        return;
+      }
+
+      setText('thanks-name', payload.nama);
+      byId('thanks-box').classList.add('shown');
+
+      if (window.DB) {
+        DB.simpanKonfirmasi(payload)
+          .then(function () { return loadConfirmations(); })
+          .then(function () { setText('status-line', 'Tersimpan ke database.'); })
+          .catch(function (err) { setText('status-line', 'Gagal menyimpan: ' + err.message); });
+      } else {
+        setText('status-line', 'Database belum disiapkan, konfirmasi belum tersimpan.');
+      }
+
+      form.reset();
+    });
+
+    loadConfirmations();
+    setInterval(loadConfirmations, 15000);
+  }
+
+// bagikan
+  if (byId('copy-bank')) {
+    byId('copy-bank').addEventListener('click', function () {
+      var button = this;
+      navigator.clipboard.writeText(CONFIG.bank);
+      button.textContent = 'Tersalin';
+      setTimeout(function () { button.textContent = 'Salin'; }, 1400);
+    });
+  }
+
+  if (byId('share-wa')) {
+    byId('share-wa').addEventListener('click', function (e) {
+      e.preventDefault();
+      var message = 'Undangan ulang tahun ' + CONFIG.name + ' ke-' + CONFIG.age + '\n' +
+        CONFIG.dateText + ', ' + CONFIG.timeText + '\n' +
+        CONFIG.venue + '\n\n' + location.href;
+      open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
+    });
+  }
+
 });
