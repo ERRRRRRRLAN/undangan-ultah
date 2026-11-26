@@ -322,7 +322,15 @@ p:last-child, .lead:last-child { margin-bottom: 0; }
 
 .cover-closing { animation: fade-out 1.1s ease forwards; }
 
+/* kunci gulir: harus kena <html> juga, karena `html, body { overflow-x: hidden }`
+   bikin overflow-y html jadi auto -> halaman tetap bisa di-scroll di balik sampul */
+html.scroll-lock,
 body.scroll-lock { overflow: hidden; }
+
+body.scroll-lock {
+  overscroll-behavior: none;
+  touch-action: none;
+}
 
 body.cover-opened .hero,
 body.cover-opened .topbar { animation: fade-in 0.9s ease both; }

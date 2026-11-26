@@ -83,10 +83,31 @@ document.addEventListener('DOMContentLoaded', function () {
   var openBtn = byId('open-cover');
   var opened = false;
 
+  // kunci gulir halaman selama sampul masih tampil
+  function kunciGulir(kunci) {
+    document.documentElement.classList.toggle('scroll-lock', kunci);
+    document.body.classList.toggle('scroll-lock', kunci);
+    if (kunci) window.scrollTo(0, 0);
+  }
+
+  function cegahGulir(e) {
+    if (!document.body.classList.contains('scroll-lock')) return;
+    if (e.type === 'keydown') {
+      if (/^(BUTTON|INPUT|SELECT|TEXTAREA|A)$/.test(e.target.tagName)) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].indexOf(e.key) < 0) return;
+    }
+    e.preventDefault();
+  }
+
+  addEventListener('wheel', cegahGulir, { passive: false });
+  addEventListener('touchmove', cegahGulir, { passive: false });
+  addEventListener('keydown', cegahGulir);
+
   function openCover(instant) {
     if (!cover || opened) return;
     opened = true;
-    document.body.classList.remove('scroll-lock');
+    kunciGulir(false);
     document.body.classList.add('cover-opened');
     putarMusik();
 
@@ -99,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (cover && openBtn) {
-    document.body.classList.add('scroll-lock');
+    kunciGulir(true);
     openBtn.addEventListener('click', function () { openCover(false); });
     if (params.get('buka') === '1') openCover(true);
   }
