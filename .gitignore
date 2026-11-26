@@ -1,0 +1,17 @@
+# Sistem
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Log
+*.log
+
+# Node
+node_modules/
+
+# catatan pribadi
+DOKUMENTASI-AI.md
