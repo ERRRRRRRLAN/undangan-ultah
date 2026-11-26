@@ -103,4 +103,111 @@ document.addEventListener('DOMContentLoaded', function () {
     if (params.get('buka') === '1') openCover(true);
   }
 
+// menu hp
+  var menuBtn = byId('menu-btn');
+  var drawer = byId('drawer');
+
+  function showMenu(open) {
+    drawer.hidden = !open;
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    menuBtn.textContent = open ? 'Tutup' : 'Menu';
+    document.body.classList.toggle('menu-open', open);
+  }
+
+  if (menuBtn && drawer) {
+    menuBtn.addEventListener('click', function () { showMenu(drawer.hidden); });
+    byId('close-menu').addEventListener('click', function () { showMenu(false); });
+    drawer.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () { showMenu(false); });
+    });
+    addEventListener('keydown', function (e) { if (e.key === 'Escape') showMenu(false); });
+    addEventListener('resize', function () { if (innerWidth > 780) showMenu(false); });
+  }
+
+// hitung mundur
+  var numberEls = document.querySelectorAll('#countdown .num');
+  var targetTime = new Date(CONFIG.startIso).getTime();
+  var timer;
+
+  function tickCountdown() {
+    var left = targetTime - Date.now();
+
+    if (left <= 0) {
+      byId('countdown').innerHTML = '<div class="box" style="grid-column:1/-1">' +
+        '<span class="num">Acara</span><span class="unit">sudah berlangsung</span></div>';
+      clearInterval(timer);
+      return;
+    }
+
+    var step = [86400000, 3600000, 60000, 1000];
+    var limit = [1000, 24, 60, 60];
+    numberEls.forEach(function (el, i) {
+      el.textContent = String(Math.floor(left / step[i]) % limit[i]).padStart(2, '0');
+    });
+  }
+
+  timer = setInterval(tickCountdown, 1000);
+  tickCountdown();
+
+// bar atas
+  var topbar = byId('topbar');
+  var navLinks = document.querySelectorAll('.nav-links a');
+
+  addEventListener('scroll', function () {
+    topbar.classList.toggle('topbar-solid', scrollY > 28);
+  }, { passive: true });
+
+  var menuWatcher = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      navLinks.forEach(function (link) {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+      });
+    });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+
+  ['event', 'lokasi', 'agenda', 'gallery', 'dress-code', 'gift', 'rsvp'].forEach(function (id) {
+    var section = byId(id);
+    if (section) menuWatcher.observe(section);
+  });
+
+// animasi gulir
+  var revealEls = document.querySelectorAll('.section-head, .row > *, .checklist li, .timeline li, ' +
+    '.shot, .swatches li, .stats > div, #rsvp-form .mb-3, .submit, .map-wrap, .site-footer .container > *');
+
+  revealEls.forEach(function (el) {
+    var index = el.parentElement ? [].indexOf.call(el.parentElement.children, el) : 0;
+    el.style.setProperty('--delay', Math.min(480, index * 70) + 'ms');
+    el.classList.add('reveal');
+    if (el.matches('.col-lg-7, .col-lg-5')) el.classList.add(index === 0 ? 'from-left' : 'from-right');
+  });
+
+  var revealWatcher = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      revealWatcher.unobserve(entry.target);
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+
+  revealEls.forEach(function (el) { revealWatcher.observe(el); });
+
+// garis kemajuan
+  var progressBar = byId('progress-bar');
+  var heroInner = byId('hero-inner');
+  var hero = document.querySelector('.hero');
+
+  function updateOnScroll() {
+    var maxScroll = document.documentElement.scrollHeight - innerHeight;
+    progressBar.style.width = (maxScroll > 0 ? (scrollY / maxScroll) * 100 : 0) + '%';
+
+    if (scrollY < hero.offsetHeight) {
+      heroInner.style.setProperty('--hero-shift', scrollY * 0.22 + 'px');
+      heroInner.style.opacity = Math.max(0, 1 - scrollY / (hero.offsetHeight * 0.9));
+    }
+  }
+
+  addEventListener('scroll', function () { requestAnimationFrame(updateOnScroll); }, { passive: true });
+  updateOnScroll();
+
 });
