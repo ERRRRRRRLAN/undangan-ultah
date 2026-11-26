@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function updateOnScroll() {
-    progressBar.style.width = (maxScroll > 0 ? (scrollY / maxScroll) * 100 : 0) + '%';
+    if (progressBar) progressBar.style.width = (maxScroll > 0 ? (scrollY / maxScroll) * 100 : 0) + '%';
 
     if (scrollY < heroTinggi) {
       heroInner.style.setProperty('--hero-shift', scrollY * 0.22 + 'px');
@@ -443,10 +443,11 @@ document.addEventListener('DOMContentLoaded', function () {
       for (var i = 0; i < data.length; i++) {
         var d = data[i];
         var geser = Math.min(d.n, 6) * (vh * 0.015);
-        var awal = d.top - vh + geser;
+        var awal = d.top - vh * 1.12 + geser;
         /* 'akhir' dibatasi maxSc supaya elemen paling bawah (footer)
-           tetap bisa mencapai p = 1 walau halaman tak bisa scroll lagi */
-        var akhir = Math.min(d.top - vh * 0.45 + geser, maxSc);
+           tetap bisa mencapai p = 1 walau halaman tak bisa scroll lagi.
+           selesai di 0.72 layar (bawah), jadi sudah kebaca sebelum tengah */
+        var akhir = Math.min(d.top - vh * 0.72 + geser, maxSc);
         var p = akhir > awal ? (sc - awal) / (akhir - awal) : (sc >= akhir ? 1 : 0);
         if (p < 0) p = 0; else if (p > 1) p = 1;
         if (d.p !== p) { d.p = p; d.el.style.setProperty('--p', p.toFixed(3)); }
