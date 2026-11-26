@@ -178,6 +178,7 @@ document.addEventListener('DOMContentLoaded', function () {
     '.shot, .swatches li, .stats > div, #rsvp-form .mb-3, .submit, .map-wrap, .site-footer .container > *');
 
   revealEls.forEach(function (el) {
+    if (el.closest('.hero, .cover')) return;
     var index = el.parentElement ? [].indexOf.call(el.parentElement.children, el) : 0;
     el.style.setProperty('--delay', Math.min(600, index * 85) + 'ms');
     el.classList.add('reveal');
@@ -418,13 +419,18 @@ document.addEventListener('DOMContentLoaded', function () {
     var data = [];
     var vh = window.innerHeight;
 
+    function posAtas(el) {
+      var y = 0;
+      while (el) { y += el.offsetTop || 0; el = el.offsetParent; }
+      return y;
+    }
+
     function ukur() {
       vh = window.innerHeight;
       data = elems.map(function (el) {
-        var kotak = el.getBoundingClientRect();
         return {
           el: el,
-          top: kotak.top + window.scrollY,
+          top: posAtas(el),
           n: el.parentElement ? [].indexOf.call(el.parentElement.children, el) : 0,
           p: -1
         };
@@ -433,11 +439,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function jalan() {
       var sc = window.scrollY;
-      var selesai = sc + vh * 0.40;
+      var maxSc = Math.max(0, document.documentElement.scrollHeight - vh);
       for (var i = 0; i < data.length; i++) {
         var d = data[i];
-        var mulai = sc + vh * 0.94 + Math.min(d.n, 6) * (vh * 0.018);
-        var p = (mulai - d.top) / (mulai - selesai);
+        var geser = Math.min(d.n, 6) * (vh * 0.015);
+        var awal = d.top - vh + geser;
+        /* 'akhir' dibatasi maxSc supaya elemen paling bawah (footer)
+           tetap bisa mencapai p = 1 walau halaman tak bisa scroll lagi */
+        var akhir = Math.min(d.top - vh * 0.45 + geser, maxSc);
+        var p = akhir > awal ? (sc - awal) / (akhir - awal) : (sc >= akhir ? 1 : 0);
         if (p < 0) p = 0; else if (p > 1) p = 1;
         if (d.p !== p) { d.p = p; d.el.style.setProperty('--p', p.toFixed(3)); }
       }
