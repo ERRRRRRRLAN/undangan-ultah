@@ -1257,3 +1257,28 @@ html, body { overflow-x: hidden; }
 }
 
 /* (animasi gulir sekarang ditangani JS lewat variabel --p) */
+
+/* ================= UI MOBILE DIRAPIKAN ================= */
+@media (max-width: 780px) {
+  /* jarak antar bagian lebih rapat & rata (sebelumnya ketiban aturan lain) */
+  .section:not(.site-footer) { padding-block: 74px; }
+
+  /* bingkai halaman disembunyikan biar layar HP nggak ramai */
+  body::after { display: none; }
+
+  /* semua konten sejajar di tepi kiri yang sama */
+  .event-info > div { padding: 20px 0; }
+  .checklist li { padding-left: 22px; }
+
+  .side { padding-top: 26px; }
+
+  /* judul bagian lebih rapat */
+  .section-head { margin-bottom: 32px; padding-bottom: 16px; }
+
+  /* countdown 4 kotak biar pas & nggak mepet */
+  .countdown .box { padding: 18px 4px; }
+  .countdown .unit { font-size: 0.66rem; letter-spacing: 0.12em; }
+
+  /* peta rasio 4:3 biar nggak kepanjangan di HP */
+  .map-wrap { aspect-ratio: 4 / 3; }
+}
