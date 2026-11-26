@@ -1253,8 +1253,12 @@ html, body { overflow-x: hidden; }
   .reveal, .reveal.shot {
     opacity: 1 !important; transform: none !important;
     filter: none !important; transition: none !important;
+    animation: none !important;
   }
-  .section-head::after { transform: scaleX(1) !important; transition: none !important; }
+  .section-head::after {
+    transform: scaleX(1) !important; transition: none !important;
+    animation: none !important;
+  }
   .hero-inner { transform: none !important; }
   .music-toggle.is-playing .music-toggle-icon i { animation: none; transform: scaleY(0.7); }
 }
@@ -1276,4 +1280,70 @@ html, body { overflow-x: hidden; }
   :root { --pad-x: 22px; }
   .cover-box::before { top: -16px; left: -16px; }
   .cover-box::after { bottom: -16px; right: -16px; }
+}
+
+/* ================= ANIMASI GULIR (scroll-driven) =================
+   Elemen berubah mengikuti posisi scroll (di-scrub), jadi terasa
+   "scroll yang bikin elemen berubah", bukan sekadar muncul sekali. */
+
+@keyframes gulirNaik {
+  from { opacity: 0; transform: translateY(58px) scale(0.95); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes gulirKiri {
+  from { opacity: 0; transform: translateX(-64px) scale(0.97); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes gulirKanan {
+  from { opacity: 0; transform: translateX(64px) scale(0.97); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes gulirZoom {
+  from { opacity: 0; transform: scale(0.75); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes gulirGaris {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@supports (animation-timeline: view()) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+    animation: gulirNaik linear both;
+    animation-duration: auto;
+    animation-timeline: view();
+    animation-range: entry 8% cover 44%;
+  }
+
+  .reveal.from-left  { animation-name: gulirKiri; }
+  .reveal.from-right { animation-name: gulirKanan; }
+
+  .checklist li.reveal { animation-name: gulirKiri; }
+  .timeline li.reveal { animation-name: gulirKiri; }
+  .timeline li:nth-child(even).reveal { animation-name: gulirKanan; }
+
+  .swatches li.reveal { animation-name: gulirZoom; animation-range: entry 12% cover 50%; }
+  .stats > div.reveal { animation-name: gulirZoom; animation-range: entry 10% cover 48%; }
+  .map-wrap.reveal { animation-range: entry 4% cover 46%; }
+
+  .reveal.shot { animation-name: gulirNaik; animation-range: entry 2% cover 44%; }
+
+  /* galeri: muncul satu-satu (stagger per kolom) */
+  .gallery-row .shot:nth-child(3n + 1) { animation-range: entry 2% cover 40%; }
+  .gallery-row .shot:nth-child(3n + 2) { animation-range: entry 6% cover 46%; }
+  .gallery-row .shot:nth-child(3n)     { animation-range: entry 10% cover 52%; }
+
+  /* garis emas di judul digambar mengikuti scroll */
+  .section-head::after {
+    transform: none;
+    transition: none;
+    animation: gulirGaris linear both;
+    animation-duration: auto;
+    animation-timeline: view();
+    animation-range: entry 25% cover 45%;
+  }
 }
